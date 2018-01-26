@@ -1,2 +1,2 @@
 # LSB-steganography
-simple scripts to hide some texts in image file in leasts signicants bits
+simple scripts to hide some text in image file in leasts signicants bits
