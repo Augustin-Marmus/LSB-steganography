@@ -1,0 +1,54 @@
+#!/usr/bin/env python3
+
+import sys
+from PIL import Image
+
+def msgToBin(msg):
+    res = ''.join('{0:08b}'.format(ord(x), 'b') for x in msg)
+    res += '00000000'
+    return (res);
+
+def set_last_bit(v, x):
+    if (x == '1'):
+        v |= 1
+    elif (x == '0'):
+        v &= ~1
+    return v
+
+if (len(sys.argv) != 3):
+    print("usage : " + sys.argv[0] + " message_to_hide path_to_image")
+    exit(84);
+
+im = Image.open(sys.argv[2])
+matrix = im.load()
+
+msg = sys.argv[1]
+binMsg = msgToBin(msg)
+
+print(binMsg)
+
+img = Image.new(im.mode, im.size)
+matrixNew = img.load()
+
+cpt = 0;
+
+for x in range(img.size[0]):
+    for y in range(img.size[1]):
+        if (cpt < len(binMsg)):
+            a, b, c = matrix[x, y][0], matrix[x, y][1], matrix[x, y][2];
+            if (cpt < len(binMsg)):
+                a = set_last_bit(matrix[x,y][0], binMsg[cpt])
+            if (cpt + 1 < len(binMsg)):
+                b = set_last_bit(matrix[x,y][1], binMsg[cpt + 1])
+            if (cpt + 2 < len(binMsg)):
+                c = set_last_bit(matrix[x,y][2], binMsg[cpt + 2])
+            cpt += 3
+            if (len(matrix[x, y]) == 3):
+                matrixNew[x, y] = (a, b, c)
+            elif (len(matrix[x, y]) == 4):
+                matrixNew[x, y] = (a, b, c, matrix[x, y][3])
+        else :
+            matrixNew[x,y] = matrix[x,y]
+
+img.save("encoded.png");
+print("Image saved as \"encoded.png\"")
